@@ -1,11 +1,13 @@
 const express = require('express');
 const morgan = require('morgan');
-const cors = require('cors');
 const path = require('path');
+const cors = require('cors');
+const dotenv = require('dotenv')
 
 require('dotenv').config();
 
-//const teamRouter = require('./api/routes/team.routes');
+const jobDescRoutes = require("./api/routes/jobDescRoutes.js");
+
 
 //Instantiate a new express app
 const app = express();
@@ -17,7 +19,7 @@ app.use(morgan('combined'));
 //Configure port and database connection
 const PORT = process.env.PORT;
 
-//app.use('/api/v1/teams', teamRouter);
+app.use('/api/v1/jobDesc', jobDescRoutes);
 
 //Open up the server to listen for requests
 app.listen(PORT, () => {
