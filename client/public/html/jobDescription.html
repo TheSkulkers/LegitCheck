@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Scam Detector</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/jobDescription.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Job Scam Detector</h1>
+            <p>Protect yourself from fraudulent job postings</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="input-section">
+                <label for="jobDescription">Paste the job description below:</label>
+                <textarea 
+                    id="jobDescription" 
+                    class="job-input" 
+                    placeholder="Copy and paste the complete job description here, including company name, requirements, salary information, and contact details..."
+                ></textarea>
+            </div>
+            
+            <button id="analyzeBtn" class="analyze-btn">
+                🔍 Analyze Job Posting
+            </button>
+            
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Analyzing job posting for potential red flags...</p>
+            </div>
+            
+            <div id="results" class="results">
+                <div class="assessment-header">
+                    <div class="risk-indicator">
+                        <div id="riskBadge" class="risk-badge"></div>
+                        <div class="risk-details">
+                            <h3 id="riskTitle" class="risk-title"></h3>
+                            <p id="riskSubtitle" class="risk-subtitle"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="findings-section">
+                    <h4>🚩 Red Flags Detected</h4>
+                    <div id="redFlagsList" class="red-flags-list"></div>
+                </div>
+                
+                <div class="recommendations">
+                    <h4>💡 Recommendations</h4>
+                    <ul id="recommendationsList"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/jobDescription.js"></script>
+</body>
+</html>
