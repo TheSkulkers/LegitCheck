@@ -12,6 +12,13 @@ class jobDescController {
                 message: 'Repsonse Recieved',
                 data: jobDescResponse
             });
+
+            
+            res.status(201).json({
+                success: true,
+                message: 'Repsonse Recieved',
+                data: jobDescResponse
+            });
         } catch (error) {
             next(error);
         }
