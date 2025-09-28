@@ -140,6 +140,7 @@ header {
 .valid-domain-indicator {
     display: none;
     color: #27ae60;
+    font-size: 2em; 
 }
 .invalid-domain-indicator {
     display: none;

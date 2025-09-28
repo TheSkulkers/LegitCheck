@@ -106,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await validateDomain(domainValue, loadingSection, [webscrapDiv, resultsSection]);
             if (result.success) {
                 // Your existing success logic
-                alert(`Domain is valid: ${result.validationResult.ValidDomain}`);
                 if (result.validationResult.ValidDomain) {
                     document.querySelector('.valid-domain-indicator').style.display = 'inline';
                     document.querySelector('.invalid-domain-indicator').style.display = 'none';
