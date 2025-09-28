@@ -1,5 +1,5 @@
 async function validateDomain(domain) {
-    const apiURL = 'http://legitcheck-bdbmb4ajc9deh0ag.canadacentral-01.azurewebsites.net/html/jobDescription.html/api/validate-domain';
+    const apiURL = '/api/validate-domain';
 
     try {
         const response = await fetch(apiURL, {
@@ -25,7 +25,7 @@ async function validateDomain(domain) {
 }
 
 async function webScraping(data) {
-    const apiURL = 'http://legitcheck-bdbmb4ajc9deh0ag.canadacentral-01.azurewebsites.net/html/jobDescription.html/api/submit-data';
+    const apiURL = '/api/submit-data';
 
     try {
         const response = await fetch(apiURL, {
@@ -51,7 +51,7 @@ async function webScraping(data) {
 }
 
 async function riskAnalysis(data) {
-    const apiURL = 'http://legitcheck-bdbmb4ajc9deh0ag.canadacentral-01.azurewebsites.net/html/jobDescription.html/api/generate-content';
+    const apiURL = '/api/generate-content';
 
     try {
         const response = await fetch(apiURL, {
@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 riskLevelDiv.className = 'risk-level ' + riskClass;
                 riskLevelDiv.textContent = `Risk Level: ${parsed.legitimacyScore} (${parsed.sentiment})`;
                 articlesCountDiv.textContent = itemCount;
-                sentimentScoreDiv.textContent = parsed.sentiment;
+                sentimentScoreDiv.textContent = parsed.sentiment.charAt(0).toUpperCase() + parsed.sentiment.slice(1);
                 scamIndicatorsDiv.textContent = parsed.scamIndicators && parsed.scamIndicators.length ? parsed.scamIndicators.join(', ') : 'None';
                 onlinePresenceDiv.textContent = parsed.ghostCompanyPatterns && parsed.ghostCompanyPatterns.length ? parsed.ghostCompanyPatterns.join(', ') : 'None';
                 resultsSection.classList.add('active');
