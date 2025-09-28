@@ -27,8 +27,6 @@ class jobDescService {
       contents: jobDescJSON,
       config: { systemInstruction: simpleSystemPrompt }
     });
-
-    // Strip Markdown code blocks (```json ... ``` or ``` ... ```)
     let raw = response.text.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```$/, '').trim();
 
     let parsedResponse;
@@ -56,21 +54,18 @@ class jobDescService {
             contentsForAI = [{ role: 'user', parts: [{ text: data.text }] }];
         } 
         else if (file.mimetype.startsWith('image/')) {
-            
-            // --- THIS IS THE CORRECTED PART ---
             contentsForAI = [{
                 role: 'user',
                 parts: [
                     { text: "Analyze this image for any signs of a scam. Is it a fraudulent job offer, a fake invoice, or a suspicious message?" },
                     {
-                        inlineData: { // Use camelCase: inlineData
-                            mimeType: file.mimetype, // Use camelCase: mimeType
+                        inlineData: { 
+                            mimeType: file.mimetype,
                             data: file.buffer.toString('base64')
                         }
                     }
                 ]
             }];
-            // ------------------------------------
 
         } else {
             throw new Error('Unsupported file type. Please upload an image or a PDF.');
