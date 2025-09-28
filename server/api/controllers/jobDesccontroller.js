@@ -38,7 +38,7 @@ class jobDescController {
                 error.status = 400; 
                 return next(error);
             }
-            const analysisResult = await jobDescService.analyzeFile(req.file);
+            const analysisResult = await jobDescService.analyzeFile(req.file, req.body.location);
             res.status(200).json({
                 success: true,
                 message: 'File analyzed successfully',
