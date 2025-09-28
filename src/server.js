@@ -25,8 +25,8 @@ const aiResponseText = response.text;
         res.send({ aiResponse: aiResponseText });
   //res.send({aiResponse: response.output[0].content[0].text});
 });
-
-app.listen(3000,()=>{console.log("Now list.......");
+const PORT = process.env.PORT || 3000
+app.listen(PORT,()=>{console.log("Now list.......");
       console.log("Using API Key:", process.env.GEMINI_API_KEY ? "Loaded successfully." : "Failed to load.");
 
 });
