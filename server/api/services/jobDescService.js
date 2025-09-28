@@ -1,4 +1,5 @@
 const ai = require('../../config/geminiClient');
+const pdf = require('pdf-parse'); 
 
 const jsonFormat = {
   score: "return a number between 1(very safe) and 10(unsafe)",
@@ -46,6 +47,58 @@ class jobDescService {
 
     return parsedResponse;
   }
+
+
+  async analyzeFile(file) {
+        let contentsForAI;
+        if (file.mimetype === 'application/pdf') {
+            const data = await pdf(file.buffer);
+            contentsForAI = [{ role: 'user', parts: [{ text: data.text }] }];
+        } 
+        else if (file.mimetype.startsWith('image/')) {
+            
+            // --- THIS IS THE CORRECTED PART ---
+            contentsForAI = [{
+                role: 'user',
+                parts: [
+                    { text: "Analyze this image for any signs of a scam. Is it a fraudulent job offer, a fake invoice, or a suspicious message?" },
+                    {
+                        inlineData: { // Use camelCase: inlineData
+                            mimeType: file.mimetype, // Use camelCase: mimeType
+                            data: file.buffer.toString('base64')
+                        }
+                    }
+                ]
+            }];
+            // ------------------------------------
+
+        } else {
+            throw new Error('Unsupported file type. Please upload an image or a PDF.');
+        }
+
+        const response = await ai.models.generateContent({
+            model: "gemini-2.0-flash",
+            contents: contentsForAI,
+            config: { systemInstruction: simpleSystemPrompt }
+        });
+        
+        let raw = response.text.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```$/, '').trim();
+        let parsedResponse;
+        try {
+            parsedResponse = JSON.parse(raw);
+        } catch (error) {
+            console.error("Failed to parse AI response as JSON:", error);
+            parsedResponse = {
+                score: "",
+                reason: raw, 
+                red_flags: [],
+                recommendations: [],
+                verdict: "SUSPICIOUS"
+            };
+        }
+
+        return parsedResponse;
+    }
 }
 
 module.exports = new jobDescService();
