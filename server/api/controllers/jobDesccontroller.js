@@ -15,6 +15,22 @@ class jobDescController {
             next(error);
         }
     }
+
+    async saveLocation(req, res, next) {
+        try {
+            const locationData = req.body;
+            const result = await jobDescService.saveLocation(locationData);
+
+            res.status(200).json({
+                success: true,
+                message: result.message,
+                data: result.receivedData
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     async analyzeFile(req, res, next) {
         try {
             if (!req.file) {
