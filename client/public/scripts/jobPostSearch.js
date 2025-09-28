@@ -1,5 +1,5 @@
 async function validateDomain(domain) {
-    const apiURL = 'http://localhost:3500/api/validate-domain';
+    const apiURL = 'https://legitcheck-bdbmb4ajc9deh0ag.canadacentral-01.azurewebsites.net/html/jobDescription.html/api/validate-domain';
 
     try {
         const response = await fetch(apiURL, {
@@ -25,7 +25,7 @@ async function validateDomain(domain) {
 }
 
 async function webScraping(data) {
-    const apiURL = 'http://localhost:3500/api/submit-data';
+    const apiURL = 'https://legitcheck-bdbmb4ajc9deh0ag.canadacentral-01.azurewebsites.net/html/jobDescription.html/api/submit-data';
 
     try {
         const response = await fetch(apiURL, {
@@ -51,7 +51,7 @@ async function webScraping(data) {
 }
 
 async function riskAnalysis(data) {
-    const apiURL = 'http://localhost:3500/api/generate-content';
+    const apiURL = 'https://legitcheck-bdbmb4ajc9deh0ag.canadacentral-01.azurewebsites.net/html/jobDescription.html/api/generate-content';
 
     try {
         const response = await fetch(apiURL, {
