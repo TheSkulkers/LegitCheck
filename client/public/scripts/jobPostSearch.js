@@ -1,12 +1,23 @@
-async function validateDomain(domain) {
+// Helper function to manage loading state
+function showLoading(isLoading, loadingElement, resultElements) {
+    if (isLoading) {
+        loadingElement.classList.add('show');
+        resultElements.forEach(el => {
+            if (el) el.classList.remove('active');
+        });
+    } else {
+        loadingElement.classList.remove('show');
+    }
+}
+
+async function validateDomain(domain, loadingElement, resultElements) {
+    showLoading(true, loadingElement, resultElements);
     const apiURL = '/api/validate-domain';
 
     try {
         const response = await fetch(apiURL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ domain: domain })
         });
 
@@ -21,18 +32,19 @@ async function validateDomain(domain) {
     } catch (error) {
         console.error('Domain validation failed:', error);
         return { success: false, message: error.message };
+    } finally {
+        showLoading(false, loadingElement, resultElements);
     }
 }
 
-async function webScraping(data) {
+async function webScraping(data, loadingElement, resultElements) {
+    showLoading(true, loadingElement, resultElements);
     const apiURL = '/api/submit-data';
 
     try {
         const response = await fetch(apiURL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
 
@@ -47,18 +59,19 @@ async function webScraping(data) {
     } catch (error) {
         console.error('NewsAPI failed to fetch', error);
         return { success: false, message: error.message };
+    } finally {
+        showLoading(false, loadingElement, resultElements);
     }
 }
 
-async function riskAnalysis(data) {
+async function riskAnalysis(data, loadingElement, resultElements) {
+    showLoading(true, loadingElement, resultElements);
     const apiURL = '/api/generate-content';
 
     try {
         const response = await fetch(apiURL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
 
@@ -72,15 +85,27 @@ async function riskAnalysis(data) {
     } catch (error) {
         console.error('GeminiAPI failed to fetch', error);
         return { success: false, message: error.message };
+    } finally {
+        showLoading(false, loadingElement, resultElements);
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelector('.search-button').addEventListener('click', async () => {
-        const domainInput = document.querySelector('.search-input').value;
-        if (domainInput) {
-            const result = await validateDomain(domainInput);
+    // Get references to elements
+    const loadingSection = document.getElementById('loadingSection');
+    const webscrapDiv = document.getElementById('webscrapResults');
+    const resultsSection = document.getElementById('resultsSection');
+    const searchButton = document.querySelector('.search-button');
+    const domainInput = document.querySelector('.search-input');
+    const scrapingBtn = document.querySelector('#scrapingBtn');
+    const riskAnalysisBtn = document.querySelector('#riskAnalysisBtn');
+
+    searchButton.addEventListener('click', async () => {
+        const domainValue = domainInput.value;
+        if (domainValue) {
+            const result = await validateDomain(domainValue, loadingSection, [webscrapDiv, resultsSection]);
             if (result.success) {
+                // Your existing success logic
                 alert(`Domain is valid: ${result.validationResult.ValidDomain}`);
                 if (result.validationResult.ValidDomain) {
                     document.querySelector('.valid-domain-indicator').style.display = 'inline';
@@ -97,10 +122,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.querySelector('#scrapingBtn').addEventListener('click', () => {
+    scrapingBtn.addEventListener('click', () => {
         const form = document.getElementById("detailsForm");
         const modal = document.getElementById("myFormModal");
         const closeButton = document.querySelector(".close-button");
+
+        // Use a flag to avoid attaching multiple submit listeners
+        if (form.dataset.listenerAttached) return;
+        form.dataset.listenerAttached = 'true';
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -108,38 +137,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 action: "getArticles",
                 keyword: form.name.value,
                 lang: "eng",
-                ignoreSourceGroupUri: "paywall/paywalled_sources",
-                articlesPage: 1,
-                articlesCount: 25,
+                articlesCount: 15,
                 articlesSortBy: "date",
-                articlesSortByAsc: false,
                 dataType: ["news", "pr"],
-                forceMaxDataTimeWindow: 31,
-                resultType: "articles",
-                apiKey: "dd18f533-34f2-4def-9a43-a7a505ca2adf"
+                apiKey: "dd18f533-34f2-4def-9a43-a7a505ca2adf" // Note: Be careful with hardcoding API keys client-side
             };
+            
+            modal.style.display = "none"; // Hide modal immediately
+            const scrapeResult = await webScraping(formData, loadingSection, [webscrapDiv, resultsSection]);
 
-            const scrapeResult = await webScraping(formData);
-            console.log("Submitted JSON:", JSON.stringify(formData, null, 2));
-
+            // Clear previous session storage
             for (let i = 0; i < sessionStorage.length; i++) {
                 const key = sessionStorage.key(i);
                 if (key.startsWith('scrapedItem_')) {
                     sessionStorage.removeItem(key);
                 }
             }
-
+            
+            // Your existing logic for handling scrapeResult...
             if (scrapeResult && scrapeResult.apiResult && Array.isArray(scrapeResult.apiResult)) {
                 scrapeResult.apiResult.forEach((item, index) => {
                     const uniqueKey = 'scrapedItem_' + index;
                     sessionStorage.setItem(uniqueKey, JSON.stringify(item));
-                    console.log(`Saved item to key: ${uniqueKey}`);
                 });
                 sessionStorage.setItem('scrapedItemCount', scrapeResult.apiResult.length);
-            }
-
-            const webscrapDiv = document.getElementById('webscrapResults');
-            if (scrapeResult && scrapeResult.apiResult && Array.isArray(scrapeResult.apiResult)) {
+                
                 const previewArticles = scrapeResult.apiResult.slice(0, 3);
                 webscrapDiv.innerHTML = `<h3>Scraped Articles Preview (${scrapeResult.apiResult.length} total)</h3>` +
                     previewArticles.map(article => `
@@ -160,41 +182,35 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 webscrapDiv.innerHTML = '<p>No articles found or error occurred.</p>';
             }
-
             form.reset();
-            modal.style.display = "none";
         });
 
         modal.style.display = "block";
-
-        closeButton.onclick = function() {
-            modal.style.display = "none";
-        }
-
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
+        closeButton.onclick = () => modal.style.display = "none";
+        window.onclick = (event) => {
+            if (event.target == modal) modal.style.display = "none";
         }
     });
 
-    document.querySelector('#riskAnalysisBtn').addEventListener('click', async () => {
+    riskAnalysisBtn.addEventListener('click', async () => {
         const itemCount = parseInt(sessionStorage.getItem('scrapedItemCount') || '0', 10);
-        const retrievedArray = [];
+        if (itemCount === 0) {
+            alert("Please scrape some articles first before running the analysis.");
+            return;
+        }
 
+        const retrievedArray = [];
         for (let i = 0; i < itemCount; i++) {
-            const uniqueKey = 'scrapedItem_' + i;
-            const itemString = sessionStorage.getItem(uniqueKey);
-            if (itemString) {
-                retrievedArray.push(JSON.parse(itemString));
-            }
+            const itemString = sessionStorage.getItem('scrapedItem_' + i);
+            if (itemString) retrievedArray.push(JSON.parse(itemString));
         }
 
         const articlesText = retrievedArray.map(a => `${a.title}\n${a.body}`).join("\n\n");
-        const riskResult = await riskAnalysis({ data: articlesText });
-        console.log("Risk Analysis Result:", riskResult);
+        const riskResult = await riskAnalysis({ data: articlesText }, loadingSection, [webscrapDiv, resultsSection]);
 
-        const resultsSection = document.getElementById('resultsSection');
+        console.log("Risk Analysis Result:", riskResult);
+        
+        // References to result elements
         const riskLevelDiv = document.getElementById('riskLevel');
         const articlesCountDiv = document.getElementById('articlesCount');
         const sentimentScoreDiv = document.getElementById('sentimentScore');
@@ -211,6 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 parsed = JSON.parse(raw);
             } catch (e) {
                 parsed = null;
+                console.error("Failed to parse JSON from AI response:", raw);
             }
 
             if (parsed) {
@@ -225,14 +242,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 sentimentScoreDiv.textContent = parsed.sentiment.charAt(0).toUpperCase() + parsed.sentiment.slice(1);
                 scamIndicatorsDiv.textContent = parsed.scamIndicators && parsed.scamIndicators.length ? parsed.scamIndicators.join(', ') : 'None';
                 onlinePresenceDiv.textContent = parsed.ghostCompanyPatterns && parsed.ghostCompanyPatterns.length ? parsed.ghostCompanyPatterns.join(', ') : 'None';
-                resultsSection.classList.add('active');
             } else {
                 riskLevelDiv.textContent = 'Risk Level: Unable to parse AI response.';
-                resultsSection.classList.add('active');
             }
         } else {
-            riskLevelDiv.textContent = 'Risk Level: No result.';
-            resultsSection.classList.add('active');
+            riskLevelDiv.textContent = 'Risk Level: No result from analysis.';
         }
+        resultsSection.classList.add('active'); // Show the results section
     });
 });
