@@ -111,14 +111,15 @@ app.post('/api/generate-content', async (req, res) => {
         });
     }
     try {
-        const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
-        const result = await model.generateContent(prompt);
-        const text = result.response.text();
-        res.json({
-            success: true,
-            generatedText: text
-        });
-    } catch (error) {
+    // Use the consistent AI client, the same way jobDescService does
+    const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash", // Using a consistent model name
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    });
+    // This line was added to remove the ```json markdown wrapper from the AI's response
+    const text = response.text.replace(/^```json\s*/, '').replace(/```$/, '').trim();
+    res.json({ success: true, generatedText: text });
+} catch (error) {
         console.error('Content generation failed:', error);
         res.status(500).json({ success: false, message: 'Content generation failed', error: error.message });
     }   

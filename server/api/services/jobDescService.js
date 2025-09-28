@@ -111,16 +111,12 @@ class jobDescService {
     const promises = searchUrls.map(url =>
       fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' } })
         .then(response => {
-          // If the site can't be reached, we count it as a failure for this specific URL
           if (!response.ok) return { status: 'failed' };
           
           return response.text().then(body => {
             const bodyLower = body.toLowerCase();
             const hasCompanyName = bodyLower.includes(companyName.toLowerCase());
-            // Check for common "no results" messages on these sites
             const hasNoResults = bodyLower.includes("no results") || bodyLower.includes("couldn't find") || bodyLower.includes("page not found") || bodyLower.includes("find any companies");
-            
-            // A search is successful if it includes the company name AND doesn't have a "no results" message
             return (hasCompanyName && !hasNoResults) ? { status: 'found' } : { status: 'not_found' };
           });
         })
