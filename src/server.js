@@ -3,8 +3,8 @@ import { GoogleGenAI } from "@google/genai";
 import 'dotenv/config'; // or: import dotenv from 'dotenv'; dotenv.config();
 
 const ai = new GoogleGenAI({
-  apiKey:"AIzaSyDhxwgBlcPxldelboiNXvguMOti8TFVCfA"
-  //apiKey:process.env.GEMINI_API_KEY
+  //apiKey:"AIzaSyDhxwgBlcPxldelboiNXvguMOti8TFVCfA"
+  apiKey:process.env.GEMINI_API_KEY
 });
 
 const app= express();
