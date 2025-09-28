@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 lang: "eng",
                 ignoreSourceGroupUri: "paywall/paywalled_sources",
                 articlesPage: 1,
-                articlesCount: 5,
+                articlesCount: 25,
                 articlesSortBy: "date",
                 articlesSortByAsc: false,
                 dataType: ["news", "pr"],
